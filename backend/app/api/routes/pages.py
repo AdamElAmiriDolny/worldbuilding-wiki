@@ -114,6 +114,11 @@ def delete_page(page_id: int, db: Session = Depends(get_db)):
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
     
+    child_pages = db.query(Page).filter(Page.parent_id == page_id).first()
+
+    if child_pages is not None:
+        raise HTTPException(status_code=400, detail="Cannot delete page with child pages")
+    
     db.delete(page)
     db.commit()
 
