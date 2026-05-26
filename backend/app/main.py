@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.routes.health import router as health_router
 from app.api.routes.projects import router as projects_router
 from app.api.routes.pages import router as pages_router
+from app.api.routes.page_links import router as page_links_router
 from app.core.config import settings
 from app.db.session import engine
 from app.db.base import Base
@@ -26,3 +27,4 @@ def read_root():
 app.include_router(health_router)
 app.include_router(projects_router)
 app.include_router(pages_router)
+app.include_router(page_links_router)
