@@ -137,14 +137,14 @@ Rules:
 - parent page must belong to the same project
 - slug is generated automatically from title
 
-## GET /pages/{page_id}
+### GET /pages/{page_id}
 Gets one page by id.
 
 Example: GET /pages/1
 
 If the page does not exist, it returns 404. (not found)
 
-## PUT /pages/{page_id}
+### PUT /pages/{page_id}
 Updates one page.
 
 Example: 
@@ -174,14 +174,14 @@ Rules:
 - a page cannot become its own parent
 - parent must belong to the same project
 
-## DELETE /pages/{page_id}
+### DELETE /pages/{page_id}
 Deletes one page.
 
 If the page does not exist, it returns 404. (not found)
 
 Deleting a page that has child pages will require additional handling later.
 
-## GET /pages/{page_id}/children
+### GET /pages/{page_id}/children
 Lists direct children of a page.
 
 Example: GET /pages/1/children
@@ -205,3 +205,38 @@ If the page exists, but has no children, response is:
 
 []
 
+## Auth
+
+### POST /auth/register
+Creates a new user.
+
+Request body:
+
+{
+  "username": "pedro",
+  "email":"pedro@example.com",
+  "password":"mypassword"
+}
+
+Response does not include neither password nor password hash.
+
+### POST /auth/login
+Logs in a user and returns JWT access token.
+
+Form data changed to OAuth2 to fit Swagger's style of testing.
+
+Fields:
+username: user email
+password: user password
+
+Response:
+
+{
+  "access_token":"...",
+  "token_type": "bearer"
+}
+
+### GET /auth/me
+Returns the currently authenticated user based on the JWT token.
+
+Requires: Authorization: Bearer <token>

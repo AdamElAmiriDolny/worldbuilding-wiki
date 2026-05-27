@@ -96,3 +96,10 @@ When assigning a parent page, the backend checks that the parent belongs to the 
 Invalid example: Page from project 1 uses parent from project 2
 
 Logically, each project will have its own independent page tree. And pages from different projects will not be mixed.
+
+## Authentication and authorization
+The backend now uses JWT-based authentication.
+
+After a specific login, the backend returns an access token. The client will send this token in the Authorization header: Authorization: Bearer <token>
+
+This way, the backend will understand which user is logged in, and will show only their related data.

@@ -112,3 +112,16 @@ model_dump(exclude_unset=True) is a Pydantic method that converts a schema objec
 Making it useful for partial updates.
 
 This helps distinguish omitted fields from fields explicitly sent as null.
+
+## Password hashing
+Passwords are not stored directly. A hash occurs and that is what is saved by the database.
+
+## JWT token
+A JWT token is returned after login. It is signed with a secret key. The token stores the user's id in the "sub" field.
+
+## Authorization header
+Protected requests send the token in the HTTP Authorization header: Authorization: Bearer <token>
+
+## get_current_user()
+FastAPI dependency that reads the token from the request, decodes, validates, and extracts the user id. It also loads the user from the database after this process.
+Returning the user object. Routes use it with: current_user: User = Depends(get_current_user)

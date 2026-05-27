@@ -25,6 +25,13 @@ This document tracks what has been implemented so far.
 - Added automatic slug generation
 - Added endpoint to list pages inside a project
 - Added endpoint to list direct children of a page
+- Added user registration
+- Added login with JWT access tokens
+- Added password hashing
+- Added "/auth/me" current user endpoint
+- Protected project routes by user ownership
+- Protected page routes by project ownership
+- Protected page link routes by page/project ownership
 
 # Current backend models
 
