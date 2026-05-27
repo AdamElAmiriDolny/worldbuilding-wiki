@@ -3,9 +3,10 @@ import re
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_user
 from app.models.page import Page
 from app.models.project import Project
+from app.models.user import User
 from app.schemas.page import PageCreate, PageRead, PageUpdate
 
 router = APIRouter(prefix="/pages", tags=["pages"])
@@ -19,11 +20,14 @@ def generate_slug(title: str) -> str:
     return slug
 
 @router.post("/", response_model=PageRead)
-def create_page(page_data: PageCreate, db: Session = Depends(get_db)):
+def create_page(page_data: PageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     project = db.query(Project).filter(Project.id == page_data.project_id).first()
 
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to create pages in this project")
     
     if page_data.parent_id is not None:
         parent_page = db.query(Page).filter(Page.id == page_data.parent_id).first()
@@ -51,12 +55,20 @@ def create_page(page_data: PageCreate, db: Session = Depends(get_db)):
     return page
 
 @router.get("/{page_id}", response_model=PageRead)
-def get_page(page_id: int, db: Session = Depends(get_db)):
+def get_page(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
     
+    project = db.query(Project).filter(Project.id == page.project_id).first()
+
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to access this page")
+
     return page
 
 @router.put("/{page_id}", response_model=PageRead)
@@ -64,11 +76,20 @@ def update_page(
     page_id: int,
     page_data: PageUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     page = db.query(Page).filter(Page.id == page_id).first()
 
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
+    
+    project = db.query(Project).filter(Project.id == page.project_id).first()
+
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to update this page")
     
     update_data = page_data.model_dump(exclude_unset=True)
 
@@ -108,11 +129,19 @@ def update_page(
     return page
 
 @router.delete("/{page_id}", response_model=PageRead)
-def delete_page(page_id: int, db: Session = Depends(get_db)):
+def delete_page(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
+    
+    project = db.query(Project).filter(Project.id == page.project_id).first()
+
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to delete this page")
     
     child_pages = db.query(Page).filter(Page.parent_id == page_id).first()
 
@@ -125,11 +154,19 @@ def delete_page(page_id: int, db: Session = Depends(get_db)):
     return page
 
 @router.get("/{page_id}/children", response_model=list[PageRead])
-def get_page_children(page_id: int, db: Session = Depends(get_db)):
+def get_page_children(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
     if page is None:
         raise HTTPException(status_code=404, detail="Page not found")
+    
+    project = db.query(Project).filter(Project.id == page.project_id).first()
+
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to access this page")
     
     children = db.query(Page).filter(Page.parent_id == page_id).all()
 
