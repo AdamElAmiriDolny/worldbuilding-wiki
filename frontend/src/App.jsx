@@ -240,6 +240,46 @@ function App() {
     setIsEditingPage(false);
   }
 
+  function renderPageContent(content){
+    if(!content){
+      return "No content yet.";
+    }
+
+    const parts = content.split(/(\[[^\]]+\])/g);
+
+    return parts.map((part, index) => {
+      const isPageLink = part.startsWith("[") && part.endsWith("]");
+
+      if(!isPageLink){
+        return <span key={index}>{part}</span>;
+      }
+
+      const linkTitle = part.slice(1, -1);
+      const linkedPage = pages.find(
+        (page) => page.title.toLowerCase() === linkTitle.toLowerCase()
+      );
+
+      if(!linkedPage){
+        return(
+          <span key={index} className="missing-page-link">
+            {linkTitle}
+          </span>
+        );
+      }
+
+      return (
+        <button
+          key={index}
+          type="button"
+          className="content-page-link"
+          onClick={() => handlePageClick(linkedPage)}
+        >
+          {linkTitle}
+        </button>
+      );
+    });
+  }
+
   return (
     <div className="app">
       <header className="top-bar">
@@ -458,7 +498,7 @@ function App() {
                   </button>
 
                   <div className="page-content">
-                    {selectedPage.content || "No content yet."}
+                    {renderPageContent(selectedPage.content)}
                   </div>
                 </article>
               )

@@ -231,3 +231,25 @@ textarea{
   gap: 8px;
   margin-top: 12px;
 }
+
+.content-page-link{
+  border: none;
+  padding: 0;
+  background: none;
+  color: #7a4f2a;
+  font: inherit;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.content-page-link:hover{
+  color: #4f2f16;
+  background: none;
+}
+
+.missing-page-link{
+  color: #9c3d2e;
+  font-weight: bold;
+  text-decoration: underline dotted;
+}
