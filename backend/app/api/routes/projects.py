@@ -73,6 +73,11 @@ def delete_project(project_id: int, db: Session = Depends(get_db), current_user:
     if project.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not allowed to delete this project")
     
+    existing_page = db.query(Page).filter(Page.project_id == project_id).first()
+    
+    if existing_page is not None:
+        raise HTTPException(status_code=400, detail="Cannot delete project with pages")
+
     db.delete(project)
     db.commit()
 

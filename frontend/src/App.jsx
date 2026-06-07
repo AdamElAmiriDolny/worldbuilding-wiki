@@ -10,9 +10,23 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState([null]);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [newPageTitle, setNewPageTitle] = useState("");
+  const [newPageContent, setNewPageContent] = useState("");
+  const [newPageParentId, setNewPageParentId] = useState(""); 
+  const [pageLinks, setPageLinks] = useState([]);
+  const [pageBacklinks, setPageBacklinks] = useState([]);
+  const [isEditingPage, setIsEditingPage] = useState(false);
+  const [editPageTitle, setEditPageTitle] = useState("");
+  const [editPageContent, setEditPageContent] = useState("");
 
   async function handleProjectClick(project){
     setSelectedProject(project);
+
+    setSelectedPage(null);
+    setPageLinks([]);
+    setPageBacklinks([]);
 
     const response = await fetch(
       `http://127.0.0.1:8000/projects/${project.id}/pages`,
@@ -29,15 +43,39 @@ function App() {
   }
 
   async function handlePageClick(page){
-    const response = await fetch(`http://127.0.0.1:8000/pages/${page.id}`, {
+    const pageResponse = await fetch(`http://127.0.0.1:8000/pages/${page.id}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
 
-    const data = await response.json();
+    const pageData = await pageResponse.json();
 
-    setSelectedPage(data);
+    setSelectedPage(pageData);
+
+    setIsEditingPage(false);
+    setEditPageTitle(pageData.title);
+    setEditPageContent(pageData.content || "");
+
+    const linksResponse = await fetch(`http://127.0.0.1:8000/page-links/pages/${page.id}/links`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const linksData = await linksResponse.json();
+
+    setPageLinks(linksData);
+
+    const backlinksResponse = await fetch(`http://127.0.0.1:8000/page-links/pages/${page.id}/backlinks`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const backlinksData = await backlinksResponse.json();
+
+    setPageBacklinks(backlinksData);
   }
 
   function handleLogout(){
@@ -49,6 +87,157 @@ function App() {
     setSelectedProject(null);
     setPages([]);
     setSelectedPage(null);
+    setPageLinks([]);
+    setPageBacklinks([]);
+  }
+
+  async function handleCreateProject(event) {
+    event.preventDefault();
+
+    if(!newProjectTitle.trim()) {
+      alert("Project title is required.");
+      return;
+    }
+
+    const response = await fetch("http://127.0.0.1:8000/projects/", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        title: newProjectTitle.trim(),
+        description: newProjectDescription || null,
+      })
+    });
+
+    const createdProject = await response.json();
+
+    setProjects([...projects, createdProject]);
+    setNewProjectTitle("");
+    setNewProjectDescription("");
+  }
+
+  async function handleCreatePage(event) {
+    event.preventDefault();
+
+    if(!selectedProject) {
+      return;
+    }
+
+    if(!newPageTitle.trim()) {
+      alert("Page title is required.");
+      return;
+    }
+
+    const response = await fetch("http://127.0.0.1:8000/pages/", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        project_id: selectedProject.id,
+        parent_id: newPageParentId ? Number(newPageParentId) : null,
+        title: newPageTitle.trim(),
+        content: newPageContent || null,
+      })
+    });
+
+    const createdPage = await response.json();
+
+    setPages([...pages, createdPage]);
+    setNewPageTitle("");
+    setNewPageContent("");
+    setNewPageParentId("");
+  }
+
+  async function handleDeleteProject(project) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${project.title || "Untitled project"}"?`
+    );
+
+    if(!confirmed){
+      return;
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/projects/${project.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not delete project.");
+      return;
+    }
+
+    setProjects(projects.filter((item) => item.id !== project.id));
+
+    if(selectedProject?.id === project.id) {
+      setSelectedProject(null);
+      setPages([]);
+      setSelectedPage(null);
+    }
+
+  }
+
+  function handleStartEditPage(){
+    if (!selectedPage){
+      return
+    }
+
+    setEditPageTitle(selectedPage.title);
+    setEditPageContent(selectedPage.content || "");
+    setIsEditingPage(true);
+  }
+
+  function handleCancelEditPage(){
+    setIsEditingPage(false);
+    setEditPageTitle(selectedPage?.title || "");
+    setEditPageContent(selectedPage?.content || "");
+  }
+
+  async function handleSavePage(event){
+    event.preventDefault();
+
+    if(!selectedPage){
+      return;
+    }
+
+    if(!editPageTitle.trim()){
+      alert("Page title is required.")
+      return;
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/pages/${selectedPage.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        title: editPageTitle.trim(),
+        content: editPageContent || null
+      })
+    });
+
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not update page.");
+      return;
+    }
+
+    const updatedPage = await response.json();
+
+    setSelectedPage(updatedPage);
+    setPages(
+      pages.map((page) => (page.id === updatedPage.id ? updatedPage : page))
+    );
+
+    setIsEditingPage(false);
   }
 
   return (
@@ -120,6 +309,7 @@ function App() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  required
                 />
               </div>
 
@@ -129,6 +319,7 @@ function App() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  required
                 />
               </div>
 
@@ -141,12 +332,37 @@ function App() {
           <aside className="sidebar">
             <h2>Projects</h2>
 
+            <form className="create-form" onSubmit={handleCreateProject}>
+              <input
+                type="text"
+                placeholder="Project title"
+                value={newProjectTitle}
+                onChange={(event) => setNewProjectTitle(event.target.value)} 
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                value={newProjectDescription}
+                onChange={(event) => setNewProjectDescription(event.target.value)}
+              />
+
+              <button type="submit">Create project</button>
+            </form>
+
             {projects.length > 0 ? (
               <ul>
                 {projects.map((project) => (
-                  <li key={project.id}>
+                  <li key={project.id} className="project-list-item">
                     <button type="button" onClick={() => handleProjectClick(project)}>
-                      {project.title}
+                      {project.title || "Untitled project"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => handleDeleteProject(project)}
+                    >
+                      Delete
                     </button>
                   </li>
                 ))}
@@ -158,6 +374,30 @@ function App() {
             {selectedProject && (
               <>
                 <h2>Pages</h2>
+
+                <form className="create-form" onSubmit={handleCreatePage}>
+                  <input
+                    type="text"
+                    placeholder="Page title"
+                    value={newPageTitle}
+                    onChange={(event) => setNewPageTitle(event.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Parent page ID (optional)"
+                    value={newPageParentId}
+                    onChange={(event) => setNewPageParentId(event.target.value)}
+                  />
+
+                  <textarea 
+                    placeholder="Page content"
+                    value={newPageContent}
+                    onChange={(event) => setNewPageContent(event.target.value)}
+                  />
+
+                  <button type="submit">Create page</button>
+                </form>
 
                 {pages.length > 0 ? (
                   <ul>
@@ -178,15 +418,50 @@ function App() {
 
           <main className="content">
             {selectedPage ? (
-              <article>
-                <p className="eyebrow">{selectedProject?.title}</p>
-                <h2>{selectedPage.title}</h2>
-                <p className="slug">/{selectedPage.slug}</p>
+              isEditingPage ? (
+                <article>
+                  <form className="edit-page-form" onSubmit={handleSavePage}>
+                    <div className="form-field">
+                      <label>Title</label>
+                      <input 
+                        type="text"
+                        value={editPageTitle}
+                        onChange={(event) => setEditPageTitle(event.target.value)}
+                        required 
+                      />
+                    </div>
 
-                <div className="page-content">
-                  {selectedPage.content || "No content yet."}
-                </div>
-              </article>
+                    <div className="form-field">
+                      <label>Content</label>
+                      <textarea
+                        value={editPageContent}
+                        onChange={(event) => setEditPageContent(event.target.value)}
+                      />  
+                    </div>
+
+                    <div className="form-actions">
+                      <button type="submit">Save page</button>
+                      <button type="button" onClick={handleCancelEditPage}>
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </article>
+              ) : (
+                <article>
+                  <p className="eyebrow">{selectedProject?.title}</p>
+                  <h2>{selectedPage.title}</h2>
+                  <p className="slug">/{selectedPage.slug}</p>
+
+                  <button type="button" onClick={handleStartEditPage}>
+                    Edit page
+                  </button>
+
+                  <div className="page-content">
+                    {selectedPage.content || "No content yet."}
+                  </div>
+                </article>
+              )
             ) : (
               <section className="empty-state">
                 <h2>Select a page</h2>
@@ -202,12 +477,34 @@ function App() {
               <>
                 <section>
                   <h3>Linked pages</h3>
-                  <p>Coming soon.</p>
+
+                  {pageLinks.length > 0 ? (
+                    <ul>
+                      {pageLinks.map((link) => (
+                        <li key={link.id}>
+                          Page #{link.target_page_title}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No linked pages.</p>
+                  )}
                 </section>
 
                 <section>
                   <h3>Referenced by</h3>
-                  <p>Coming soon.</p>
+
+                  {pageBacklinks.length > 0 ? (
+                    <ul>
+                      {pageBacklinks.map((link) => (
+                        <li key={link.id}>
+                          Page #{link.source_page_title}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No backlinks.</p>
+                  )}
                 </section>
 
                 <section>

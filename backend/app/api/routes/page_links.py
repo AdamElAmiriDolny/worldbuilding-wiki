@@ -6,9 +6,22 @@ from app.models.page import Page
 from app.models.page_link import PageLink
 from app.models.project import Project
 from app.models.user import User
-from app.schemas.page_link import PageLinkCreate, PageLinkRead
+from app.schemas.page_link import PageLinkCreate, PageLinkRead, PageLinkDetail
 
 router = APIRouter(prefix="/page-links", tags=["page-links"])
+
+def build_page_link_detail(db: Session, page_link: PageLink) -> dict:
+    source_page = db.query(Page).filter(Page.id == page_link.source_page_id).first()
+    target_page = db.query(Page).filter(Page.id == page_link.target_page_id).first()
+
+    return {
+        "id": page_link.id,
+        "source_page_id": page_link.source_page_id,
+        "target_page_id": page_link.target_page_id,
+        "created_at": page_link.created_at,
+        "source_page_title": source_page.title if source_page else "Unkown page",
+        "target_page_title": target_page.title if target_page else "Unknown page"
+    }
 
 @router.post("/", response_model=PageLinkRead)
 def create_page_link(link_data: PageLinkCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -49,7 +62,7 @@ def create_page_link(link_data: PageLinkCreate, db: Session = Depends(get_db), c
 
     return page_link
 
-@router.get("/pages/{page_id}/links", response_model=list[PageLinkRead])
+@router.get("/pages/{page_id}/links", response_model=list[PageLinkDetail])
 def get_page_links(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
@@ -66,9 +79,9 @@ def get_page_links(page_id: int, db: Session = Depends(get_db), current_user: Us
     
     links = db.query(PageLink).filter(PageLink.source_page_id == page_id).all()
 
-    return links
+    return [build_page_link_detail(db, link) for link in links]
 
-@router.get("/pages/{page_id}/backlinks", response_model=list[PageLinkRead])
+@router.get("/pages/{page_id}/backlinks", response_model=list[PageLinkDetail])
 def get_page_backlinks(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
@@ -85,7 +98,7 @@ def get_page_backlinks(page_id: int, db: Session = Depends(get_db), current_user
     
     backlinks = db.query(PageLink).filter(PageLink.target_page_id == page_id).all()
 
-    return backlinks
+    return [build_page_link_detail(db, link) for link in backlinks]
 
 @router.delete("/{link_id}", response_model=PageLinkRead)
 def delete_page_link(link_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

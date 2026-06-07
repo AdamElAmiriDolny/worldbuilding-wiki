@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Here are the Pydantic schema models that will be used to define which data and its types are expected by the frontend/client.
 class ProjectCreate(BaseModel):
-    title: str
+    title: str = Field(min_length=1)
     description: str | None = None
 
 class ProjectRead(BaseModel):
@@ -15,5 +15,5 @@ class ProjectRead(BaseModel):
     created_at: datetime
 
 class ProjectUpdate(BaseModel):
-    title: str | None = None
+    title: str | None = Field(default=None, min_length=1)
     description: str | None = None

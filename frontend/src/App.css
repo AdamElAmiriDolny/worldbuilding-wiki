@@ -176,3 +176,58 @@ button:hover {
   border-radius: 16px;
   text-align: center;
 }
+
+.create-form{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.create-form input{
+  width: 100%;
+}
+
+.create-form button{
+  width: 100%;
+}
+
+textarea{
+  min-height: 90px;
+  padding: 10px;
+  border: 1px solid #6f4a2e;
+  border-radius: 8px;
+  background: #f3e6d0;
+  color: #1f1712;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.project-list-item{
+  display: flex;
+  gap: 8px;
+}
+
+.project-list-item > button:first-child{
+  flex: 1;
+}
+
+.danger-button{
+  border-color: #9c3d2e;
+  background: #6f241c;
+}
+
+.danger-button:hover{
+  background: #922f24;
+}
+
+.edit-page-form textarea{
+  width: 100%;
+  min-height: 260px;
+}
+
+.form-actions{
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

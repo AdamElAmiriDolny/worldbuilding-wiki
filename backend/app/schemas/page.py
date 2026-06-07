@@ -1,16 +1,16 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class PageCreate(BaseModel):
     project_id: int
     parent_id: int | None = None
-    title: str
+    title: str = Field(min_length=1)
     content: str | None = None
 
 class PageUpdate(BaseModel):
     parent_id: int | None = None
-    title: str | None = None
+    title: str | None = Field(default=None, min_length=1)
     content: str | None = None
 
 class PageRead(BaseModel):

@@ -11,3 +11,7 @@ class PageLinkRead(BaseModel):
     source_page_id: int
     target_page_id: int
     created_at: datetime
+
+class PageLinkDetail(BaseModel):
+    source_page_title: str
+    target_page_title: str
