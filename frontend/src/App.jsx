@@ -2,25 +2,41 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
+
+  // Authentication states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
+
+  // Project and page navigation states
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [pages, setPages] = useState([]);
-  const [selectedPage, setSelectedPage] = useState([null]);
+  const [selectedPage, setSelectedPage] = useState(null);
+
+  // Create form states
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [newPageTitle, setNewPageTitle] = useState("");
   const [newPageContent, setNewPageContent] = useState("");
   const [newPageParentId, setNewPageParentId] = useState(""); 
+
+  // Page link panel states
   const [pageLinks, setPageLinks] = useState([]);
   const [pageBacklinks, setPageBacklinks] = useState([]);
+
+  // Page edit states
   const [isEditingPage, setIsEditingPage] = useState(false);
   const [editPageTitle, setEditPageTitle] = useState("");
   const [editPageContent, setEditPageContent] = useState("");
 
+
+  /* 
+    Function that handles the event of clicking a project.
+    It stores the clicked project, clears old selected page/link data, fetches the project's pages from the backend
+    and then saves those in React state.
+  */
   async function handleProjectClick(project){
     setSelectedProject(project);
 
@@ -41,6 +57,12 @@ function App() {
 
     setPages(data);
   }
+
+/*
+  Function that handles the event of clicking a page.
+  It fetches the selected page's data, and saves those in React state to display.
+  It also prepares the form for editing the page with its corresponding title/content and fetches outgoing links and backlinks.
+*/
 
   async function handlePageClick(page){
     const pageResponse = await fetch(`http://127.0.0.1:8000/pages/${page.id}`, {
@@ -78,6 +100,10 @@ function App() {
     setPageBacklinks(backlinksData);
   }
 
+  /*
+    Function that controls the login states.
+  */
+
   function handleLogout(){
     setEmail("");
     setPassword("");
@@ -89,6 +115,9 @@ function App() {
     setSelectedPage(null);
     setPageLinks([]);
     setPageBacklinks([]);
+    setIsEditingPage(false);
+    setEditPageTitle("");
+    setEditPageContent("");
   }
 
   async function handleCreateProject(event) {
@@ -522,7 +551,7 @@ function App() {
                     <ul>
                       {pageLinks.map((link) => (
                         <li key={link.id}>
-                          Page #{link.target_page_title}
+                          {link.target_page_title}
                         </li>
                       ))}
                     </ul>
@@ -538,7 +567,7 @@ function App() {
                     <ul>
                       {pageBacklinks.map((link) => (
                         <li key={link.id}>
-                          Page #{link.source_page_title}
+                          {link.source_page_title}
                         </li>
                       ))}
                     </ul>
