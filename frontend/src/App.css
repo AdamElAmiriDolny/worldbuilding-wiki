@@ -253,3 +253,12 @@ textarea{
   font-weight: bold;
   text-decoration: underline dotted;
 }
+
+.page-list-item{
+  display: flex;
+  gap: 8px;
+}
+
+.page-list-item > button:first-child{
+  flex: 1;
+}

@@ -7,6 +7,7 @@ from app.api.deps import get_db, get_current_user
 from app.models.page import Page
 from app.models.project import Project
 from app.models.user import User
+from app.models.page_link import PageLink
 from app.schemas.page import PageCreate, PageRead, PageUpdate
 
 router = APIRouter(prefix="/pages", tags=["pages"])
@@ -128,7 +129,7 @@ def update_page(
 
     return page
 
-@router.delete("/{page_id}", response_model=PageRead)
+@router.delete("/{page_id}")
 def delete_page(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     page = db.query(Page).filter(Page.id == page_id).first()
 
@@ -148,10 +149,15 @@ def delete_page(page_id: int, db: Session = Depends(get_db), current_user: User 
     if child_pages is not None:
         raise HTTPException(status_code=400, detail="Cannot delete page with child pages")
     
+    db.query(PageLink).filter(
+        (PageLink.source_page_id == page_id) |
+        (PageLink.target_page_id == page_id)
+    ).delete(synchronize_session=False)
+
     db.delete(page)
     db.commit()
 
-    return page
+    return {"message": "Page deleted succesfully"}
 
 @router.get("/{page_id}/children", response_model=list[PageRead])
 def get_page_children(page_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

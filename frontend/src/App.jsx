@@ -309,6 +309,43 @@ function App() {
     });
   }
 
+  
+  async function handleDeletePage(page){
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${page.title || "Untitled page"}"?`
+    );
+
+    if(!confirmed){
+      return;
+    }
+
+    const response = await fetch(`http://127.0.0.1:8000/pages/${page.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not delete page.");
+      return;
+    }
+
+    setPages(pages.filter((item) => item.id !== page.id));
+
+    if(selectedPage?.id === page.id){
+      setSelectedPage(null);
+      setPageLinks([]);
+      setPageBacklinks([]);
+      setIsEditingPage(false);
+      setEditPageTitle("");
+      setEditPageContent("");
+    }
+
+  }
+  
+
   return (
     <div className="app">
       <header className="top-bar">
@@ -471,9 +508,17 @@ function App() {
                 {pages.length > 0 ? (
                   <ul>
                     {pages.map((page) => (
-                      <li key={page.id}>
+                      <li key={page.id} className="page-list-item">
                         <button type="button" onClick={() => handlePageClick(page)}>
                           {page.title}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="danger-button"
+                          onClick={() => handleDeletePage(page)}
+                        >
+                          Delete
                         </button>
                       </li>
                     ))}
