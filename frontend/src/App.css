@@ -262,3 +262,21 @@ textarea{
 .page-list-item > button:first-child{
   flex: 1;
 }
+
+.selected-project-panel{
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid rgba(214, 169, 96, 0.25);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.selected-project-panel h3{
+  margin: 4px 0 8px;
+}
+
+.selected-project-panel p{
+  margin: 0 0 10px;
+  color: #d8c3a5;
+  font-size: 0.9rem;
+}

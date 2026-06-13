@@ -31,6 +31,10 @@ function App() {
   const [editPageTitle, setEditPageTitle] = useState("");
   const [editPageContent, setEditPageContent] = useState("");
 
+  // Project edit states
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [editProjectTitle, setEditProjectTitle] = useState("");
+  const [editProjectDescription, setEditProjectDescription] = useState("");
 
   /* 
     Function that handles the event of clicking a project.
@@ -40,6 +44,9 @@ function App() {
   async function handleProjectClick(project){
     setSelectedProject(project);
 
+    setIsEditingProject(false);
+    setEditProjectTitle(project.title);
+    setEditProjectDescription(project.description || "");
     setSelectedPage(null);
     setPageLinks([]);
     setPageBacklinks([]);
@@ -345,6 +352,68 @@ function App() {
 
   }
   
+  function handleStartEditProject(){
+    if(!selectedProject){
+      return;
+    }
+
+    setEditProjectTitle(selectedProject.title);
+    setEditProjectDescription(selectedProject.description || "");
+    setIsEditingProject(true);
+  }
+
+  function handleCancelEditProject(){
+    if(!selectedProject){
+      return;
+    }
+
+    setEditProjectTitle(selectedProject.title);
+    setEditProjectDescription(selectedProject.description || "");
+    setIsEditingProject(false);
+  }
+
+  async function handleSaveProject(event){
+    event.preventDefault();
+
+    if(!selectedProject){
+      return;
+    }
+
+    if(!editProjectTitle.trim()){
+      alert("Project title is required.")
+      return;
+    }
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/projects/${selectedProject.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: editProjectTitle,
+          description: editProjectDescription,
+        })
+      }
+    );
+
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not update project.");
+      return;
+    }
+
+    const updatedProject = await response.json();
+
+    setSelectedProject(updatedProject);
+
+    setProjects(projects.map((project) => project.id === updatedProject.id ? updatedProject : project));
+
+    setIsEditingProject(false);
+  }
+
 
   return (
     <div className="app">
@@ -479,6 +548,44 @@ function App() {
 
             {selectedProject && (
               <>
+                <section className="selected-project-panel">
+                  {isEditingProject ? (
+                    <form onSubmit={handleSaveProject} className="create-form">
+                      <input
+                        type="text"
+                        value={editProjectTitle}
+                        onChange={(event) => setEditProjectTitle(event.target.value)}
+                      />
+
+                      <textarea
+                        value={editProjectDescription}
+                        onChange={(event) => setEditProjectDescription(event.target.value)}
+                        rows="3"
+                      />
+
+                      <div className="form-actions">
+                        <button type="submit">Save project</button>
+                        <button type="button" onClick={handleCancelEditProject}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <p className="eyebrow">Selected project</p>
+                      <h3>{selectedProject.title}</h3>
+
+                      {selectedProject.description && (
+                        <p>{selectedProject.description}</p>
+                      )}
+
+                      <button type="button" onClick={handleStartEditProject}>
+                        Edit project
+                      </button>
+                    </>
+                  )}
+                </section>    
+
                 <h2>Pages</h2>
 
                 <form className="create-form" onSubmit={handleCreatePage}>
