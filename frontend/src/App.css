@@ -280,3 +280,23 @@ textarea{
   color: #d8c3a5;
   font-size: 0.9rem;
 }
+
+.auth-switch{
+  margin-top: 16px;
+  color: #d8c3a5;
+  font-size: 0.9rem;
+}
+
+.auth-switch button{
+  background: none;
+  border: none;
+  color: #d6a960;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.auth-switch button:hover{
+  color: #f0c987;
+}

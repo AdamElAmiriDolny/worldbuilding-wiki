@@ -8,6 +8,10 @@ function App() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [authMode, setAuthMode] = useState("login");
 
   // Project and page navigation states
   const [projects, setProjects] = useState([]);
@@ -414,6 +418,51 @@ function App() {
     setIsEditingProject(false);
   }
 
+  async function handleRegister(event){
+    event.preventDefault();
+
+    if(!registerEmail.trim()){
+      alert("Email is required.");
+      return;
+    }
+
+    if(!registerUsername.trim()){
+      alert("Username is required.");
+      return;
+    }
+
+    if(!registerPassword.trim()){
+      alert("Password is required.")
+      return;
+    }
+
+    const response = await fetch("http://127.0.0.1:8000/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        email: registerEmail,
+        username: registerUsername,
+        password: registerPassword
+      })
+    });
+    
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not register.");
+      return;
+    }
+
+    alert("Account created. You can now log in.");
+
+    setEmail(registerEmail);
+    setPassword("");
+    setRegisterEmail("");
+    setRegisterUsername("");
+    setRegisterPassword("");
+    setAuthMode("login");
+  }
 
   return (
     <div className="app">
@@ -435,49 +484,57 @@ function App() {
       {!token ? (
         <main className="auth-page">
           <section className="auth-card">
-            <h2>Login</h2>
+            {authMode === "login" ? (
+              <>
+                <h2>Login</h2>
 
-            <form
-              onSubmit={async(event) => {
-                event.preventDefault();
+                <form
+                  onSubmit={async(event) => {
+                    event.preventDefault();
 
-                const formData = new URLSearchParams();
-                formData.append("username", email);
-                formData.append("password", password);
+                  const formData = new URLSearchParams();
+                  formData.append("username", email);
+                  formData.append("password", password);
 
-                const response = await fetch("http://127.0.0.1:8000/auth/login", {
-                  method: "POST",
-                  headers: {
-                    "Content-type": "application/x-www-form-urlencoded"
-                  },
-                  body: formData
-                });
+                  const response = await fetch("http://127.0.0.1:8000/auth/login", {
+                    method: "POST",
+                    headers: {
+                      "Content-type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData
+                  });
 
-                const data = await response.json();
-
-                setToken(data.access_token);
-
-                const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
-                  headers: {
-                    Authorization: `Bearer ${data.access_token}`
+                  if(!response.ok){
+                    const errorData = await response.json();
+                    alert(errorData.detail || "Could not log in.");
+                    return;
                   }
-                });
 
-                const meData = await meResponse.json();
+                  const data = await response.json();
 
-                setUser(meData);
+                  setToken(data.access_token);
 
-                const projectsResponse = await fetch("http://127.0.0.1:8000/projects/", {
-                  headers: {
-                    Authorization: `Bearer ${data.access_token}`
-                  }
-                });
+                  const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
+                    headers: {
+                      Authorization: `Bearer ${data.access_token}`
+                    }
+                  });
 
-                const projectsData = await projectsResponse.json();
+                  const meData = await meResponse.json();
 
-                setProjects(projectsData);
-              }}
-            >
+                  setUser(meData);
+
+                  const projectsResponse = await fetch("http://127.0.0.1:8000/projects/", {
+                    headers: {
+                      Authorization: `Bearer ${data.access_token}`
+                    }
+                  });
+
+                  const projectsData = await projectsResponse.json();
+
+                  setProjects(projectsData);
+                }}
+              >
               <div className="form-field">
                 <label>Email</label>
                 <input
@@ -500,7 +557,61 @@ function App() {
 
               <button type="submit">Log in</button>
             </form>
-          </section>
+
+            <p className="auth-switch">
+              No account yet?{" "}
+              <button type="button" onClick={() => setAuthMode("register")}>
+                Create one
+              </button>
+            </p>
+          </>
+        ) : (
+          <>
+            <h2>Create account</h2>
+
+            <form onSubmit={handleRegister}>
+              <div className="form-field">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={registerUsername}
+                  onChange={(event) => setRegisterUsername(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={registerEmail}
+                  onChange={(event) => setRegisterEmail(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-field">
+                <label>Password</label>
+                <input
+                  type="password"
+                  value={registerPassword}
+                  onChange={(event) => setRegisterPassword(event.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit">Create account</button>
+          </form>
+          
+          <p className="auth-switch">
+            Already have an account?{" "}
+            <button type="button" onClick={() => setAuthMode("login")}>
+              Log in
+            </button>
+          </p>
+        </>
+        )}
+      </section>
         </main>
       ) : (
         <div className="app-layout">
