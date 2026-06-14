@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
@@ -12,6 +12,7 @@ function App() {
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [authMode, setAuthMode] = useState("login");
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   // Project and page navigation states
   const [projects, setProjects] = useState([]);
@@ -39,6 +40,61 @@ function App() {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editProjectTitle, setEditProjectTitle] = useState("");
   const [editProjectDescription, setEditProjectDescription] = useState("");
+
+  async function loadUserAndProjects(authToken){
+    const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
+      headers: {
+        Authorization: `Bearer ${authToken}`
+      }
+    });
+
+    if(!meResponse.ok){
+      throw new Error("Could not load user.");
+    }
+
+    const meData = await meResponse.json();
+
+    const projectsResponse = await fetch("http://127.0.0.1:8000/projects/", {
+      headers: {
+        Authorization: `Bearer ${authToken}`
+      }
+    });
+
+    if(!projectsResponse.ok){
+      throw new Error("Could not load projects.");
+    }
+
+    const projectsData = await projectsResponse.json();
+
+    setUser(meData);
+    setProjects(projectsData);
+  }
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("worldbuilding_wiki_token");
+
+    if(!savedToken){
+      setIsAuthLoading(false);
+      return;
+    }
+
+    async function restoreSession(){
+      try{
+        await loadUserAndProjects(savedToken);
+        setToken(savedToken);
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem("worldbuilding_wiki_token");
+        setToken("");
+        setUser(null);
+        setProjects([]);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    }
+    
+  restoreSession();
+}, []);
 
   /* 
     Function that handles the event of clicking a project.
@@ -116,6 +172,8 @@ function App() {
   */
 
   function handleLogout(){
+    localStorage.removeItem("worldbuilding_wiki_token");
+
     setEmail("");
     setPassword("");
     setToken("");
@@ -129,6 +187,9 @@ function App() {
     setIsEditingPage(false);
     setEditPageTitle("");
     setEditPageContent("");
+    setIsEditingProject(false);
+    setEditProjectTitle("");
+    setEditProjectDescription("");
   }
 
   async function handleCreateProject(event) {
@@ -464,6 +525,17 @@ function App() {
     setAuthMode("login");
   }
 
+  if(isAuthLoading){
+    return(
+      <div className="auth-page">
+        <section className="auth-card">
+          <h2>Loading your archive...</h2>
+          <p>Checking your saved session.</p>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <header className="top-bar">
@@ -512,27 +584,11 @@ function App() {
 
                   const data = await response.json();
 
+                  localStorage.setItem("worldbuilding_wiki_token", data.access_token);
+
+                  await loadUserAndProjects(data.access_token);
+
                   setToken(data.access_token);
-
-                  const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
-                    headers: {
-                      Authorization: `Bearer ${data.access_token}`
-                    }
-                  });
-
-                  const meData = await meResponse.json();
-
-                  setUser(meData);
-
-                  const projectsResponse = await fetch("http://127.0.0.1:8000/projects/", {
-                    headers: {
-                      Authorization: `Bearer ${data.access_token}`
-                    }
-                  });
-
-                  const projectsData = await projectsResponse.json();
-
-                  setProjects(projectsData);
                 }}
               >
               <div className="form-field">
