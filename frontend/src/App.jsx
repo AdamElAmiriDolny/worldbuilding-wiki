@@ -19,6 +19,7 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [pages, setPages] = useState([]);
   const [selectedPage, setSelectedPage] = useState(null);
+  const [expandedPageIds, setExpandedPageIds] = useState([]);
 
   // Create form states
   const [newProjectTitle, setNewProjectTitle] = useState("");
@@ -110,6 +111,7 @@ function App() {
     setSelectedPage(null);
     setPageLinks([]);
     setPageBacklinks([]);
+    setExpandedPageIds([]);
 
     const response = await fetch(
       `http://127.0.0.1:8000/projects/${project.id}/pages`,
@@ -246,6 +248,14 @@ function App() {
     });
 
     const createdPage = await response.json();
+
+    if(createdPage.parent_id){
+      setExpandedPageIds((currentIds) =>
+        currentIds.includes(createdPage.parent_id)
+          ? currentIds
+          : [...currentIds, createdPage.parent_id]
+      );
+    }
 
     setPages([...pages, createdPage]);
     setNewPageTitle("");
@@ -536,6 +546,14 @@ function App() {
     );
   }
 
+  function togglePageExpanded(pageId){
+    if(expandedPageIds.includes(pageId)){
+      setExpandedPageIds(expandedPageIds.filter((id) => id !== pageId));
+    } else {
+      setExpandedPageIds([...expandedPageIds, pageId]);
+    }
+  }
+
   /*
     Find all pages whose parent_id is null
     For each one, find its children
@@ -554,37 +572,54 @@ function App() {
   function renderPageTree(pageNodes, depth = 0){
     return(
       <ul className={depth === 0 ? "page-tree" : "page-tree-children"}>
-        {pageNodes.map((page) => (
-          <li key={page.id} className="page-tree-item">
-            <div
-              className="page-tree-row"
-              style={{ paddingLeft: `${depth * 16}px`}}
-            >
-              <button
-                type="button"
-                className={
-                  selectedPage?.id === page.id
-                  ? "page-tree-button active"
-                  : "page-tree-button"
-                }
-                onClick={() => handlePageClick(page)}
-              >
-                {page.children.length > 0 ? "▾ " : ""}
-                {page.title}
-              </button>
+        {pageNodes.map((page) => {
+          const hasChildren = page.children.length > 0;
+          const isExpanded = expandedPageIds.includes(page.id);
 
-              <button
-                type="button"
-                className="danger-button"
-                onClick={() => handleDeletePage(page)}
+          return(
+            <li key={page.id} className="page-tree-item">
+              <div
+                className="page-tree-row"
+                style={{ paddingLeft: `${depth * 16}px`}}
               >
-                Delete
-              </button>
-            </div>
+                {hasChildren ? (
+                  <button
+                    type="button"
+                    className="page-tree-toggle"
+                    onClick={() => togglePageExpanded(page.id)}
+                    aria-label={isExpanded ? "Collapse page" : "Expand page"}
+                  >
+                    {isExpanded ? "▾" : "▸"}
+                  </button>
+                ) : (
+                  <span className="page-tree-toggle-placeholder"/>
+                )}
 
-            {page.children.length > 0 && renderPageTree(page.children, depth + 1)}
-          </li>
-        ))}
+                <button
+                  type="button"
+                  className={
+                    selectedPage?.id === page.id
+                      ? "page-tree-button active"
+                      : "page-tree-button"
+                  }
+                  onClick={() => handlePageClick(page)}
+                >
+                  {page.title}
+                </button>
+
+                <button
+                  type="button"
+                  className="danger-button"
+                  onClick={() => handleDeletePage(page)}
+                >
+                  Delete
+                </button>
+              </div>
+
+              {hasChildren && isExpanded && renderPageTree(page.children, depth + 1)}
+            </li>
+          );
+        })}
       </ul>
     );
   }

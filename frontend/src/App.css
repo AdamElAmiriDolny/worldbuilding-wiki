@@ -335,3 +335,24 @@ select{
   border-color: rgba(240, 201, 135, 0.9);
   background: rgba(214, 169, 96, 0.18);
 }
+
+.page-tree-toggle, .page-tree-toggle-placeholder{
+  width: 28px;
+  min-width: 28px;
+  height: 34px;
+  padding: 0;
+  text-align: center;
+}
+
+.page-tree-toggle{
+  background: transparent;
+  border-color: rgba(214, 169, 96, 0.25);
+}
+
+.page-tree-toggle:hover{
+  background: rgba(214, 169, 96, 0.12);
+}
+
+.page-tree-toggle-placeholder{
+  display: inline-block
+}
