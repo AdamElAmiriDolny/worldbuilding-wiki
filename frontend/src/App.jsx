@@ -536,6 +536,59 @@ function App() {
     );
   }
 
+  /*
+    Find all pages whose parent_id is null
+    For each one, find its children
+    For each child, find its children
+    Repeat until there are no more children 
+  */
+  function buildPageTree(pageList, parentId = null){
+    return pageList
+      .filter((page) => page.parent_id === parentId)
+      .map((page) => ({
+        ...page,
+        children: buildPageTree(pageList, page.id)
+      }));
+  }
+
+  function renderPageTree(pageNodes, depth = 0){
+    return(
+      <ul className={depth === 0 ? "page-tree" : "page-tree-children"}>
+        {pageNodes.map((page) => (
+          <li key={page.id} className="page-tree-item">
+            <div
+              className="page-tree-row"
+              style={{ paddingLeft: `${depth * 16}px`}}
+            >
+              <button
+                type="button"
+                className={
+                  selectedPage?.id === page.id
+                  ? "page-tree-button active"
+                  : "page-tree-button"
+                }
+                onClick={() => handlePageClick(page)}
+              >
+                {page.children.length > 0 ? "▾ " : ""}
+                {page.title}
+              </button>
+
+              <button
+                type="button"
+                className="danger-button"
+                onClick={() => handleDeletePage(page)}
+              >
+                Delete
+              </button>
+            </div>
+
+            {page.children.length > 0 && renderPageTree(page.children, depth + 1)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <div className="app">
       <header className="top-bar">
@@ -763,12 +816,18 @@ function App() {
                     onChange={(event) => setNewPageTitle(event.target.value)}
                   />
 
-                  <input
-                    type="text"
-                    placeholder="Parent page ID (optional)"
+                  <select
                     value={newPageParentId}
                     onChange={(event) => setNewPageParentId(event.target.value)}
-                  />
+                  >
+                    <option value="">No parent / top-level page</option>
+
+                    {pages.map((page) => (
+                      <option key={page.id} value={page.id}>
+                        {page.title}
+                      </option>
+                    ))}
+                  </select>
 
                   <textarea 
                     placeholder="Page content"
@@ -780,23 +839,7 @@ function App() {
                 </form>
 
                 {pages.length > 0 ? (
-                  <ul>
-                    {pages.map((page) => (
-                      <li key={page.id} className="page-list-item">
-                        <button type="button" onClick={() => handlePageClick(page)}>
-                          {page.title}
-                        </button>
-
-                        <button
-                          type="button"
-                          className="danger-button"
-                          onClick={() => handleDeletePage(page)}
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  renderPageTree(buildPageTree(pages))
                 ) : (
                   <p>No pages found.</p>
                 )}
