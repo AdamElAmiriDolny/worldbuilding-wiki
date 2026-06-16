@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import PageTree from "./components/PageTree"
+import LoginForm from "./components/LoginForm"
+import RegisterForm from "./components/RegisterForm"
 
 function App() {
 
@@ -547,6 +549,36 @@ function App() {
     );
   }
 
+  async function handleLogin(event){
+    event.preventDefault();
+
+    const formData = new URLSearchParams();
+    formData.append("username", email);
+    formData.append("password", password)
+
+    const response = await fetch("http://127.0.0.1:8000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded",
+      },
+      body: formData,
+    });
+
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not log in.");
+      return;
+    }
+
+    const data = await response.json();
+
+    localStorage.setItem("worldbuilding_wiki_token", data.access_token);
+
+    await loadUserAndProjects(data.access_token)
+
+    setToken(data.access_token);
+  }
+
   function togglePageExpanded(pageId){
     if(expandedPageIds.includes(pageId)){
       setExpandedPageIds(expandedPageIds.filter((id) => id !== pageId));
@@ -585,115 +617,25 @@ function App() {
         <main className="auth-page">
           <section className="auth-card">
             {authMode === "login" ? (
-              <>
-                <h2>Login</h2>
-
-                <form
-                  onSubmit={async(event) => {
-                    event.preventDefault();
-
-                  const formData = new URLSearchParams();
-                  formData.append("username", email);
-                  formData.append("password", password);
-
-                  const response = await fetch("http://127.0.0.1:8000/auth/login", {
-                    method: "POST",
-                    headers: {
-                      "Content-type": "application/x-www-form-urlencoded"
-                    },
-                    body: formData
-                  });
-
-                  if(!response.ok){
-                    const errorData = await response.json();
-                    alert(errorData.detail || "Could not log in.");
-                    return;
-                  }
-
-                  const data = await response.json();
-
-                  localStorage.setItem("worldbuilding_wiki_token", data.access_token);
-
-                  await loadUserAndProjects(data.access_token);
-
-                  setToken(data.access_token);
-                }}
-              >
-              <div className="form-field">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-field">
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                />
-              </div>
-
-              <button type="submit">Log in</button>
-            </form>
-
-            <p className="auth-switch">
-              No account yet?{" "}
-              <button type="button" onClick={() => setAuthMode("register")}>
-                Create one
-              </button>
-            </p>
-          </>
+              <LoginForm
+                email={email}
+                password={password}
+                setEmail={setEmail}
+                setPassword={setPassword}
+                onLogin={handleLogin}
+                onSwitchToRegister={() => setAuthMode("register")}
+              />
         ) : (
-          <>
-            <h2>Create account</h2>
-
-            <form onSubmit={handleRegister}>
-              <div className="form-field">
-                <label>Username</label>
-                <input
-                  type="text"
-                  value={registerUsername}
-                  onChange={(event) => setRegisterUsername(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-field">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={registerEmail}
-                  onChange={(event) => setRegisterEmail(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-field">
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={registerPassword}
-                  onChange={(event) => setRegisterPassword(event.target.value)}
-                  required
-                />
-              </div>
-
-              <button type="submit">Create account</button>
-          </form>
-          
-          <p className="auth-switch">
-            Already have an account?{" "}
-            <button type="button" onClick={() => setAuthMode("login")}>
-              Log in
-            </button>
-          </p>
-        </>
+          <RegisterForm
+            registerUsername={registerUsername}
+            registerEmail={registerEmail}
+            registerPassword={registerPassword}
+            setRegisterUsername={setRegisterUsername}
+            setRegisterEmail={setRegisterEmail}
+            setRegisterPassword={setRegisterPassword}
+            onRegister={handleRegister}
+            onSwitchToLogin={() => setAuthMode("login")}
+          />
         )}
       </section>
         </main>
