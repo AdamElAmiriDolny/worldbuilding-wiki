@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import PageTree from "./components/PageTree"
-import LoginForm from "./components/LoginForm"
-import RegisterForm from "./components/RegisterForm"
-import DetailsPanel from "./components/DetailsPanel"
+import PageTree from "./components/PageTree";
+import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
+import DetailsPanel from "./components/DetailsPanel";
 import PageViewer from "./components/PageViewer";
 import PageEditor from "./components/PageEditor";
+import CreateProjectForm from "./components/CreateProjectForm";
+import CreatePageForm from "./components/CreatePageForm";
 
 function App() {
 
@@ -647,22 +649,13 @@ function App() {
           <aside className="sidebar">
             <h2>Projects</h2>
 
-            <form className="create-form" onSubmit={handleCreateProject}>
-              <input
-                type="text"
-                placeholder="Project title"
-                value={newProjectTitle}
-                onChange={(event) => setNewProjectTitle(event.target.value)} 
-              />
-              <input
-                type="text"
-                placeholder="Description"
-                value={newProjectDescription}
-                onChange={(event) => setNewProjectDescription(event.target.value)}
-              />
-
-              <button type="submit">Create project</button>
-            </form>
+            <CreateProjectForm
+              newProjectTitle={newProjectTitle}
+              newProjectDescription={newProjectDescription}
+              setNewProjectTitle={setNewProjectTitle}
+              setNewProjectDescription={setNewProjectDescription}
+              onCreateProject={handleCreateProject}
+            />
 
             {projects.length > 0 ? (
               <ul>
@@ -728,35 +721,16 @@ function App() {
 
                 <h2>Pages</h2>
 
-                <form className="create-form" onSubmit={handleCreatePage}>
-                  <input
-                    type="text"
-                    placeholder="Page title"
-                    value={newPageTitle}
-                    onChange={(event) => setNewPageTitle(event.target.value)}
-                  />
-
-                  <select
-                    value={newPageParentId}
-                    onChange={(event) => setNewPageParentId(event.target.value)}
-                  >
-                    <option value="">No parent / top-level page</option>
-
-                    {pages.map((page) => (
-                      <option key={page.id} value={page.id}>
-                        {page.title}
-                      </option>
-                    ))}
-                  </select>
-
-                  <textarea 
-                    placeholder="Page content"
-                    value={newPageContent}
-                    onChange={(event) => setNewPageContent(event.target.value)}
-                  />
-
-                  <button type="submit">Create page</button>
-                </form>
+                <CreatePageForm
+                  pages={pages}
+                  newPageTitle={newPageTitle}
+                  newPageContent={newPageContent}
+                  newPageParentId={newPageParentId}
+                  setNewPageTitle={setNewPageTitle}
+                  setNewPageContent={setNewPageContent}
+                  setNewPageParentId={setNewPageParentId}
+                  onCreatePage={handleCreatePage}
+                />
 
                 {pages.length > 0 ? (
                   <PageTree
