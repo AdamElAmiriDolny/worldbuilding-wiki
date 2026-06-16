@@ -4,6 +4,8 @@ import PageTree from "./components/PageTree"
 import LoginForm from "./components/LoginForm"
 import RegisterForm from "./components/RegisterForm"
 import DetailsPanel from "./components/DetailsPanel"
+import PageViewer from "./components/PageViewer";
+import PageEditor from "./components/PageEditor";
 
 function App() {
 
@@ -775,48 +777,21 @@ function App() {
           <main className="content">
             {selectedPage ? (
               isEditingPage ? (
-                <article>
-                  <form className="edit-page-form" onSubmit={handleSavePage}>
-                    <div className="form-field">
-                      <label>Title</label>
-                      <input 
-                        type="text"
-                        value={editPageTitle}
-                        onChange={(event) => setEditPageTitle(event.target.value)}
-                        required 
-                      />
-                    </div>
-
-                    <div className="form-field">
-                      <label>Content</label>
-                      <textarea
-                        value={editPageContent}
-                        onChange={(event) => setEditPageContent(event.target.value)}
-                      />  
-                    </div>
-
-                    <div className="form-actions">
-                      <button type="submit">Save page</button>
-                      <button type="button" onClick={handleCancelEditPage}>
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </article>
+                <PageEditor
+                  editPageTitle={editPageTitle}
+                  editPageContent={editPageContent}
+                  setEditPageTitle={setEditPageTitle}
+                  setEditPageContent={setEditPageContent}
+                  onSavePage={handleSavePage}
+                  onCancelEditPage={handleCancelEditPage}
+                />
               ) : (
-                <article>
-                  <p className="eyebrow">{selectedProject?.title}</p>
-                  <h2>{selectedPage.title}</h2>
-                  <p className="slug">/{selectedPage.slug}</p>
-
-                  <button type="button" onClick={handleStartEditPage}>
-                    Edit page
-                  </button>
-
-                  <div className="page-content">
-                    {renderPageContent(selectedPage.content)}
-                  </div>
-                </article>
+                <PageViewer
+                  selectedProject={selectedProject}
+                  selectedPage={selectedPage}
+                  onStartEditPage={handleStartEditPage}
+                  renderPageContent={renderPageContent}
+                />
               )
             ) : (
               <section className="empty-state">
