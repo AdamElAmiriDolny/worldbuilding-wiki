@@ -8,6 +8,8 @@ import PageViewer from "./components/PageViewer";
 import PageEditor from "./components/PageEditor";
 import CreateProjectForm from "./components/CreateProjectForm";
 import CreatePageForm from "./components/CreatePageForm";
+import ProjectList from "./components/ProjectList";
+import SelectedProjectPanel from "./components/SelectedProjectPanel";
 
 function App() {
 
@@ -657,67 +659,25 @@ function App() {
               onCreateProject={handleCreateProject}
             />
 
-            {projects.length > 0 ? (
-              <ul>
-                {projects.map((project) => (
-                  <li key={project.id} className="project-list-item">
-                    <button type="button" onClick={() => handleProjectClick(project)}>
-                      {project.title || "Untitled project"}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="danger-button"
-                      onClick={() => handleDeleteProject(project)}
-                    >
-                      Delete
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No projects found.</p>
-            )}
+            <ProjectList
+              projects={projects}
+              onProjectClick={handleProjectClick}
+              onDeleteProject={handleDeleteProject}
+            />
 
             {selectedProject && (
               <>
-                <section className="selected-project-panel">
-                  {isEditingProject ? (
-                    <form onSubmit={handleSaveProject} className="create-form">
-                      <input
-                        type="text"
-                        value={editProjectTitle}
-                        onChange={(event) => setEditProjectTitle(event.target.value)}
-                      />
-
-                      <textarea
-                        value={editProjectDescription}
-                        onChange={(event) => setEditProjectDescription(event.target.value)}
-                        rows="3"
-                      />
-
-                      <div className="form-actions">
-                        <button type="submit">Save project</button>
-                        <button type="button" onClick={handleCancelEditProject}>
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <>
-                      <p className="eyebrow">Selected project</p>
-                      <h3>{selectedProject.title}</h3>
-
-                      {selectedProject.description && (
-                        <p>{selectedProject.description}</p>
-                      )}
-
-                      <button type="button" onClick={handleStartEditProject}>
-                        Edit project
-                      </button>
-                    </>
-                  )}
-                </section>    
+                <SelectedProjectPanel
+                  selectedProject={selectedProject}
+                  isEditingProject={isEditingProject}
+                  editProjectTitle={editProjectTitle}
+                  editProjectDescription={editProjectDescription}
+                  setEditProjectTitle={setEditProjectTitle}
+                  setEditProjectDescription={setEditProjectDescription}
+                  onStartEditProject={handleStartEditProject}
+                  onCancelEditProject={handleCancelEditProject}
+                  onSaveProject={handleSaveProject}
+                />
 
                 <h2>Pages</h2>
 
