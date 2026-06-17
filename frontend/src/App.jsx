@@ -10,6 +10,7 @@ import CreateProjectForm from "./components/CreateProjectForm";
 import CreatePageForm from "./components/CreatePageForm";
 import ProjectList from "./components/ProjectList";
 import SelectedProjectPanel from "./components/SelectedProjectPanel";
+import ConfirmModal from "./components/ConfirmModal";
 
 function App() {
 
@@ -51,6 +52,9 @@ function App() {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editProjectTitle, setEditProjectTitle] = useState("");
   const [editProjectDescription, setEditProjectDescription] = useState("");
+
+  // Modal states
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   async function loadUserAndProjects(authToken){
     const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
@@ -274,14 +278,6 @@ function App() {
   }
 
   async function handleDeleteProject(project) {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${project.title || "Untitled project"}"?`
-    );
-
-    if(!confirmed){
-      return;
-    }
-
     const response = await fetch(`http://127.0.0.1:8000/projects/${project.id}`, {
       method: "DELETE",
       headers: {
@@ -303,6 +299,15 @@ function App() {
       setSelectedPage(null);
     }
 
+  }
+
+  function handleRequestDeleteProject(project){
+    setConfirmDialog({
+      title: "Delete project?",
+      message: `Are you sure you want to delete "${project.title || "Untitled project"}"?`,
+      confirmLabel: "Delete project",
+      onConfirm: () => handleDeleteProject(project)
+    });
   }
 
   function handleStartEditPage(){
@@ -403,14 +408,6 @@ function App() {
 
   
   async function handleDeletePage(page){
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${page.title || "Untitled page"}"?`
-    );
-
-    if(!confirmed){
-      return;
-    }
-
     const response = await fetch(`http://127.0.0.1:8000/pages/${page.id}`, {
       method: "DELETE",
       headers: {
@@ -435,6 +432,15 @@ function App() {
       setEditPageContent("");
     }
 
+  }
+
+  function handleRequestDeletePage(page){
+    setConfirmDialog({
+      title: "Delete page?",
+      message: `Are you sure you want to delete "${page.title || "Untitled page"}"?`,
+      confirmLabel: "Delete page",
+      onConfirm: () => handleDeletePage(page)
+    });
   }
   
   function handleStartEditProject(){
@@ -594,14 +600,14 @@ function App() {
     }
   }
 
-  /*
-    Find all pages whose parent_id is null
-    For each one, find its children
-    For each child, find its children
-    Repeat until there are no more children 
-  */
+  async function handleConfirmDialog(){
+    if(!confirmDialog){
+      return;
+    }
 
-  
+    await confirmDialog.onConfirm();
+    setConfirmDialog(null);
+  }
 
   return (
     <div className="app">
@@ -662,7 +668,7 @@ function App() {
             <ProjectList
               projects={projects}
               onProjectClick={handleProjectClick}
-              onDeleteProject={handleDeleteProject}
+              onDeleteProject={handleRequestDeleteProject}
             />
 
             {selectedProject && (
@@ -698,7 +704,7 @@ function App() {
                     selectedPage={selectedPage}
                     expandedPageIds={expandedPageIds}
                     onPageClick={handlePageClick}
-                    onDeletePage={handleDeletePage}
+                    onDeletePage={handleRequestDeletePage}
                     onToggleExpanded={togglePageExpanded}
                   />
                 ) : (
@@ -741,6 +747,16 @@ function App() {
             pageBacklinks={pageBacklinks}
           />
         </div>
+      )}
+
+      {confirmDialog && (
+        <ConfirmModal
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmLabel={confirmDialog.confirmLabel}
+          onConfirm={handleConfirmDialog}
+          onCancel={() => setConfirmDialog(null)}
+        />
       )}
     </div>
   );
