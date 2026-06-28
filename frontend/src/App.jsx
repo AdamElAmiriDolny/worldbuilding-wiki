@@ -141,6 +141,27 @@ function App() {
     setPages(data);
   }
 
+  function handleBackToProjects(){
+    setSelectedProject(null);
+    setPages([]);
+    setSelectedPage(null);
+    setPageLinks([]);
+    setPageBacklinks([]);
+    setExpandedPageIds([]);
+
+    setIsEditingPage(false);
+    setEditPageTitle("");
+    setEditPageContent("");
+
+    setIsEditingProject(false);
+    setEditProjectTitle("");
+    setEditProjectDescription("");
+
+    setNewPageTitle("");
+    setNewPageContent("");
+    setNewPageParentId("");
+  }
+
 /*
   Function that handles the event of clicking a page.
   It fetches the selected page's data, and saves those in React state to display.
@@ -655,64 +676,74 @@ function App() {
       ) : (
         <div className="app-layout">
           <aside className="sidebar">
-            <h2>Projects</h2>
-
-            <CreateProjectForm
-              newProjectTitle={newProjectTitle}
-              newProjectDescription={newProjectDescription}
-              setNewProjectTitle={setNewProjectTitle}
-              setNewProjectDescription={setNewProjectDescription}
-              onCreateProject={handleCreateProject}
-            />
-
-            <ProjectList
-              projects={projects}
-              onProjectClick={handleProjectClick}
-              onDeleteProject={handleRequestDeleteProject}
-            />
-
-            {selectedProject && (
+            {!selectedProject ? (
               <>
-                <SelectedProjectPanel
-                  selectedProject={selectedProject}
-                  isEditingProject={isEditingProject}
-                  editProjectTitle={editProjectTitle}
-                  editProjectDescription={editProjectDescription}
-                  setEditProjectTitle={setEditProjectTitle}
-                  setEditProjectDescription={setEditProjectDescription}
-                  onStartEditProject={handleStartEditProject}
-                  onCancelEditProject={handleCancelEditProject}
-                  onSaveProject={handleSaveProject}
+                <h2>Projects</h2>
+
+                <CreateProjectForm
+                  newProjectTitle={newProjectTitle}
+                  newProjectDescription={newProjectDescription}
+                  setNewProjectTitle={setNewProjectTitle}
+                  setNewProjectDescription={setNewProjectDescription}
+                  onCreateProject={handleCreateProject}
                 />
 
-                <h2>Pages</h2>
+              <ProjectList
+                projects={projects}
+                onProjectClick={handleProjectClick}
+                onDeleteProject={handleRequestDeleteProject}
+              />
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="back-to-projects-button"
+                onClick={handleBackToProjects}
+              >
+                ← All projects
+              </button>
 
-                <CreatePageForm
+              <SelectedProjectPanel
+                selectedProject={selectedProject}
+                isEditingProject={isEditingProject}
+                editProjectTitle={editProjectTitle}
+                editProjectDescription={editProjectDescription}
+                setEditProjectTitle={setEditProjectTitle}
+                setEditProjectDescription={setEditProjectDescription}
+                onStartEditProject={handleStartEditProject}
+                onCancelEditProject={handleCancelEditProject}
+                onSaveProject={handleSaveProject}
+              />
+
+              <h2>Pages</h2>
+
+              <CreatePageForm
+                pages={pages}
+                newPageTitle={newPageTitle}
+                newPageContent={newPageContent}
+                newPageParentId={newPageParentId}
+                setNewPageTitle={setNewPageTitle}
+                setNewPageContent={setNewPageContent}
+                setNewPageParentId={setNewPageParentId}
+                onCreatePage={handleCreatePage}
+              />
+
+              {pages.length > 0 ? (
+                <PageTree
                   pages={pages}
-                  newPageTitle={newPageTitle}
-                  newPageContent={newPageContent}
-                  newPageParentId={newPageParentId}
-                  setNewPageTitle={setNewPageTitle}
-                  setNewPageContent={setNewPageContent}
-                  setNewPageParentId={setNewPageParentId}
-                  onCreatePage={handleCreatePage}
+                  selectedPage={selectedPage}
+                  expandedPageIds={expandedPageIds}
+                  onPageClick={handlePageClick}
+                  onDeletePage={handleRequestDeletePage}
+                  onToggleExpanded={togglePageExpanded}
                 />
-
-                {pages.length > 0 ? (
-                  <PageTree
-                    pages={pages}
-                    selectedPage={selectedPage}
-                    expandedPageIds={expandedPageIds}
-                    onPageClick={handlePageClick}
-                    onDeletePage={handleRequestDeletePage}
-                    onToggleExpanded={togglePageExpanded}
-                  />
-                ) : (
-                  <p>No pages found.</p>
-                )}
-              </>
-            )}
-          </aside>
+              ) : (
+                <p>No pages found.</p>
+              )}
+            </>
+          )}
+        </aside>
 
           <main className="content">
             {selectedPage ? (

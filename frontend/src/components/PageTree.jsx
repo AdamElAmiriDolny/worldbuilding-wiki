@@ -24,10 +24,7 @@ function PageTree({
 
           return (
             <li key={page.id} className="page-tree-item">
-              <div
-                className="page-tree-row"
-                style={{ paddingLeft: `${depth * 16}px` }}
-              >
+              <div className="page-tree-row">
                 {hasChildren ? (
                   <button
                     type="button"
@@ -55,10 +52,11 @@ function PageTree({
 
                 <button
                   type="button"
-                  className="danger-button"
+                  className="page-tree-delete-button"
                   onClick={() => onDeletePage(page)}
+                  aria-label={`Delete ${page.title}`}
                 >
-                  Delete
+                  ×
                 </button>
               </div>
 

@@ -34,14 +34,26 @@ function SelectedProjectPanel({
         </form>
       ) : (
         <>
-          <p className="eyebrow">Selected project</p>
-          <h3>{selectedProject.title}</h3>
+          <div className="project-context-header">
+            <div>
+              <p className="eyebrow">Selected project</p>
+              <h3>{selectedProject.title}</h3>
+            </div>
 
-          {selectedProject.description && <p>{selectedProject.description}</p>}
+            <button
+              type="button"
+              className="subtle-button"
+              onClick={onStartEditProject}
+            >
+              Edit
+            </button>
+          </div>
 
-          <button type="button" onClick={onStartEditProject}>
-            Edit project
-          </button>
+          {selectedProject.description && (
+            <p className="project-context-description">
+              {selectedProject.description}
+            </p>
+          )}
         </>
       )}
     </section>
