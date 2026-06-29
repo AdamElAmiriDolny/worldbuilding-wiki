@@ -7,7 +7,7 @@ import DetailsPanel from "./components/DetailsPanel";
 import PageViewer from "./components/PageViewer";
 import PageEditor from "./components/PageEditor";
 import CreateProjectForm from "./components/CreateProjectForm";
-import CreatePageForm from "./components/CreatePageForm";
+import CreatePageModal from "./components/CreatePageModal";
 import ProjectList from "./components/ProjectList";
 import SelectedProjectPanel from "./components/SelectedProjectPanel";
 import ConfirmModal from "./components/ConfirmModal";
@@ -55,6 +55,7 @@ function App() {
 
   // Modal states
   const [confirmDialog, setConfirmDialog] = useState(null);
+  const [isCreatePageModalOpen, setIsCreatePageModalOpen] = useState(false);
 
   async function loadUserAndProjects(authToken){
     const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
@@ -278,9 +279,15 @@ function App() {
         project_id: selectedProject.id,
         parent_id: newPageParentId ? Number(newPageParentId) : null,
         title: newPageTitle.trim(),
-        content: newPageContent || null,
+        content: null,
       })
     });
+
+    if(!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not create page.")
+      return;
+    }
 
     const createdPage = await response.json();
 
@@ -293,9 +300,19 @@ function App() {
     }
 
     setPages([...pages, createdPage]);
+
+    setSelectedPage(createdPage);
+    setPageLinks([]);
+    setPageBacklinks([]);
+
+    setIsEditingPage(true);
+    setEditPageTitle(createdPage.title);
+    setEditPageContent(createdPage.content || "");
+
     setNewPageTitle("");
     setNewPageContent("");
     setNewPageParentId("");
+    setIsCreatePageModalOpen(false);
   }
 
   async function handleDeleteProject(project) {
@@ -718,16 +735,13 @@ function App() {
 
               <h2>Pages</h2>
 
-              <CreatePageForm
-                pages={pages}
-                newPageTitle={newPageTitle}
-                newPageContent={newPageContent}
-                newPageParentId={newPageParentId}
-                setNewPageTitle={setNewPageTitle}
-                setNewPageContent={setNewPageContent}
-                setNewPageParentId={setNewPageParentId}
-                onCreatePage={handleCreatePage}
-              />
+              <button
+                type="button"
+                className="new-page-button"
+                onClick={() => setIsCreatePageModalOpen(true)}
+              >
+                + New page
+              </button>
 
               {pages.length > 0 ? (
                 <PageTree
@@ -787,6 +801,22 @@ function App() {
           confirmLabel={confirmDialog.confirmLabel}
           onConfirm={handleConfirmDialog}
           onCancel={() => setConfirmDialog(null)}
+        />
+      )}
+
+      {isCreatePageModalOpen && (
+        <CreatePageModal
+          pages={pages}
+          newPageTitle={newPageTitle}
+          newPageParentId={newPageParentId}
+          setNewPageTitle={setNewPageTitle}
+          setNewPageParentId={setNewPageParentId}
+          onCreatePage={handleCreatePage}
+          onCancel={() => {
+            setIsCreatePageModalOpen(false);
+            setNewPageTitle("");
+            setNewPageParentId("");
+          }}
         />
       )}
     </div>

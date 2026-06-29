@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -14,10 +15,14 @@ router = APIRouter(prefix="/pages", tags=["pages"])
 
 # Function to generate the slug for each route name assigned to the pages. Example: Aldor the Exiled ---> aldor-the-exiled
 def generate_slug(title: str) -> str:
-    slug = title.lower().strip() #applies lowercase and strips the spaces from the edges
+    normalized_title = unicodedata.normalize("NFKD", title)
+    ascii_title = normalized_title.encode("ascii", "ignore").decode("ascii")
+
+    slug = ascii_title.lower().strip() #applies lowercase and strips the spaces from the edges
     slug = re.sub(r"\s+", "-", slug) #replaces spaces for dashes
     slug = re.sub(r"[^a-z0-9\-]", "", slug) #eliminates any invalid characters
     slug = re.sub(r"-+", "-", slug)
+    slug = slug.strip("-")
     return slug
 
 @router.post("/", response_model=PageRead)

@@ -702,19 +702,93 @@ select:focus {
 */
 
 .edit-page-form {
+  position: relative;
   max-width: 860px;
+  min-height: 560px;
   margin: 0 auto;
-  padding: 28px;
-  border: 1px solid var(--border-soft);
-  border-radius: 14px;
+  padding: 48px 64px;
+  border: 1px solid rgba(138, 91, 53, 0.65);
+  border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(36, 25, 18, 0.98), rgba(18, 13, 9, 0.98));
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.28), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(122, 79, 42, 0.12), transparent 34%),
+    linear-gradient(180deg, #f1dfbd 0%, #e5cfaa 100%);
+  color: #26180f;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.42),
+    inset 0 0 34px rgba(90, 59, 36, 0.14);
+  font-family: var(--font-heading);
+}
+
+.edit-page-form::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(122, 79, 42, 0.22);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.edit-page-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #7a4f2a;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.edit-page-form input {
+  margin-bottom: 24px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid rgba(122, 79, 42, 0.28);
+  border-radius: 0;
+  background: transparent;
+  color: #20130c;
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  line-height: 1.1;
+}
+
+.edit-page-form input:focus {
+  box-shadow: none;
+  border-color: rgba(122, 79, 42, 0.55);
 }
 
 .edit-page-form textarea {
   width: 100%;
   min-height: 320px;
+  padding: 18px 0;
+  border: none;
+  border-top: 1px solid rgba(122, 79, 42, 0.2);
+  border-radius: 0;
+  background: transparent;
+  color: #2f2118;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  resize: vertical;
+}
+
+.edit-page-form textarea:focus {
+  box-shadow: none;
+  border-color: rgba(122, 79, 42, 0.45);
+}
+
+.edit-page-form .form-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(122, 79, 42, 0.22);
+}
+
+.edit-page-form .form-actions button {
+  flex: 0 0 auto;
+  min-width: 140px;
 }
 
 
@@ -901,4 +975,76 @@ select:focus {
   .content h2 {
     max-width: none;
   }
+}
+
+/*
+  16. Create page modals
+*/
+
+.new-page-button {
+  width: 100%;
+  margin: 8px 0 14px;
+  text-align: left;
+}
+
+.create-page-modal {
+  max-width: 460px;
+}
+
+.modal-form {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* =========================================================
+   Manuscript reading mode refinement
+   Reading and editing should feel like two modes of the same
+   manuscript, not two completely different interfaces.
+   ========================================================= */
+
+.content article {
+  position: relative;
+  max-width: 860px;
+  min-height: 560px;
+  margin: 0 auto;
+  padding: 48px 64px;
+  border: 1px solid rgba(138, 91, 53, 0.65);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.28), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(122, 79, 42, 0.12), transparent 34%),
+    linear-gradient(180deg, #f1dfbd 0%, #e5cfaa 100%);
+  color: #26180f;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.42),
+    inset 0 0 34px rgba(90, 59, 36, 0.14);
+  font-family: var(--font-heading);
+}
+
+.content article::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(122, 79, 42, 0.22);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.content article h2 {
+  margin-bottom: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(122, 79, 42, 0.22);
+}
+
+.content article .slug {
+  display: none;
+}
+
+.page-content {
+  max-width: 68ch;
+  margin-top: 30px;
+  color: #2f2118;
+  font-size: 1.05rem;
+  line-height: 1.75;
 }
