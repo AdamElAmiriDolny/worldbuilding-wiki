@@ -1048,3 +1048,150 @@ select:focus {
   font-size: 1.05rem;
   line-height: 1.75;
 }
+
+/*
+   Project dashboard state
+
+   When the user is logged in but has not entered a project,
+   the app behaves like a project dashboard instead of showing
+   empty page details. This keeps the workspace modes clear:
+   choose project first, then work inside that project.
+*/
+
+.project-dashboard-layout {
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+
+.project-dashboard-empty {
+  max-width: 720px;
+}
+
+/* Project dashboard alignment
+   When no project is selected, the center panel should feel like a
+   deliberate dashboard state, not an empty page viewer. */
+
+.project-dashboard-layout .content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(72px, 12vh, 140px) 32px 32px;
+}
+
+.project-dashboard-layout .project-dashboard-empty {
+  width: 100%;
+  max-width: 720px;
+  margin: 0;
+}
+
+/* Project dashboard card alignment fix */
+
+.project-dashboard-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 170px;
+  padding: 40px 48px;
+  text-align: center;
+}
+
+.project-dashboard-empty .eyebrow {
+  width: 100%;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.project-dashboard-empty h2 {
+  width: 100%;
+  margin: 0 0 18px;
+  text-align: center;
+}
+
+.project-dashboard-empty p:not(.eyebrow) {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Disable decorative marker inherited from generic empty states */
+.project-dashboard-empty::before {
+  content: none;
+}
+
+/* Empty-state alignment fix
+   All empty-state cards should center their label, title, and body text
+   as one intentional block. */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.empty-state .eyebrow {
+  width: 100%;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.empty-state h2 {
+  width: 100%;
+  margin: 0 0 18px;
+  text-align: center;
+}
+
+.empty-state p:not(.eyebrow) {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.empty-state::before {
+  content: none;
+}
+
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 10px;
+}
+
+.sidebar-section-header h2 {
+  margin: 0;
+}
+
+.sidebar-add-button {
+  width: auto;
+  min-height: auto;
+  padding: 5px 9px;
+  border-color: rgba(214, 169, 96, 0.28);
+  background: rgba(0, 0, 0, 0.14);
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.sidebar-add-button:hover {
+  border-color: rgba(240, 201, 135, 0.55);
+  background: rgba(214, 169, 96, 0.1);
+  color: var(--brass-bright);
+}
+
+.create-project-modal,
+.create-page-modal {
+  max-width: 460px;
+}
+
+.modal-form {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}

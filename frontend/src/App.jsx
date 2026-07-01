@@ -6,7 +6,7 @@ import RegisterForm from "./components/RegisterForm";
 import DetailsPanel from "./components/DetailsPanel";
 import PageViewer from "./components/PageViewer";
 import PageEditor from "./components/PageEditor";
-import CreateProjectForm from "./components/CreateProjectForm";
+import CreateProjectModal from "./components/CreateProjectModal";
 import CreatePageModal from "./components/CreatePageModal";
 import ProjectList from "./components/ProjectList";
 import SelectedProjectPanel from "./components/SelectedProjectPanel";
@@ -56,6 +56,7 @@ function App() {
   // Modal states
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [isCreatePageModalOpen, setIsCreatePageModalOpen] = useState(false);
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
 
   async function loadUserAndProjects(authToken){
     const meResponse = await fetch("http://127.0.0.1:8000/auth/me", {
@@ -250,11 +251,30 @@ function App() {
       })
     });
 
+    if(!response.ok){
+      const errorData = await response.json();
+      alert(errorData.detail || "Could not create project.")
+      return;
+    }
+
     const createdProject = await response.json();
 
     setProjects([...projects, createdProject]);
+
+    setSelectedProject(createdProject);
+    setPages([]);
+    setSelectedPage(null);
+    setPageLinks([]);
+    setPageBacklinks([]);
+    setExpandedPageIds([]);
+
+    setIsEditingProject(false);
+    setEditProjectTitle(createdProject.title);
+    setEditProjectDescription(createdProject.description || "");
+
     setNewProjectTitle("");
     setNewProjectDescription("");
+    setIsCreateProjectModalOpen(false);
   }
 
   async function handleCreatePage(event) {
@@ -691,19 +711,21 @@ function App() {
       </section>
         </main>
       ) : (
-        <div className="app-layout">
+        <div className={selectedProject ? "app-layout" : "app-layout project-dashboard-layout"}>
           <aside className="sidebar">
             {!selectedProject ? (
               <>
+              <div className="sidebar-section-header">
                 <h2>Projects</h2>
 
-                <CreateProjectForm
-                  newProjectTitle={newProjectTitle}
-                  newProjectDescription={newProjectDescription}
-                  setNewProjectTitle={setNewProjectTitle}
-                  setNewProjectDescription={setNewProjectDescription}
-                  onCreateProject={handleCreateProject}
-                />
+                <button
+                  type="button"
+                  className="sidebar-add-button"
+                  onClick={() => setIsCreateProjectModalOpen(true)}
+                >
+                  + New
+                </button>
+              </div>
 
               <ProjectList
                 projects={projects}
@@ -733,15 +755,17 @@ function App() {
                 onSaveProject={handleSaveProject}
               />
 
-              <h2>Pages</h2>
+              <div className="sidebar-section-header">
+                <h2>Pages</h2>
 
-              <button
-                type="button"
-                className="new-page-button"
-                onClick={() => setIsCreatePageModalOpen(true)}
-              >
-                + New page
-              </button>
+                <button
+                  type="button"
+                  className="sidebar-add-button"
+                  onClick={() => setIsCreatePageModalOpen(true)}
+                >
+                  + New
+                </button>
+              </div>
 
               {pages.length > 0 ? (
                 <PageTree
@@ -759,38 +783,48 @@ function App() {
           )}
         </aside>
 
-          <main className="content">
-            {selectedPage ? (
-              isEditingPage ? (
-                <PageEditor
-                  editPageTitle={editPageTitle}
-                  editPageContent={editPageContent}
-                  setEditPageTitle={setEditPageTitle}
-                  setEditPageContent={setEditPageContent}
-                  onSavePage={handleSavePage}
-                  onCancelEditPage={handleCancelEditPage}
-                />
-              ) : (
-                <PageViewer
-                  selectedProject={selectedProject}
-                  selectedPage={selectedPage}
-                  onStartEditPage={handleStartEditPage}
-                  renderPageContent={renderPageContent}
-                />
-              )
+        <main className="content">
+          {!selectedProject ? (
+            <section className="empty-state project-dashboard-empty">
+              <p className="eyebrow">Your workspace</p>
+              <h2>Choose a project</h2>
+              <p>
+                Select a project from the sidebar or create a new one to begin building your world archive.
+              </p>
+            </section>
+          ) : selectedPage ? (
+            isEditingPage ? (
+              <PageEditor
+                editPageTitle={editPageTitle}
+                editPageContent={editPageContent}
+                setEditPageTitle={setEditPageTitle}
+                setEditPageContent={setEditPageContent}
+                onSavePage={handleSavePage}
+                onCancelEditPage={handleCancelEditPage}
+              />
             ) : (
-              <section className="empty-state">
-                <h2>Select a page</h2>
-                <p>Choose a project and page from the sidebar.</p>
-              </section>
-            )}
-          </main>
+              <PageViewer
+                selectedPage={selectedPage}
+                onStartEditPage={handleStartEditPage}
+                renderPageContent={renderPageContent}
+              />
+            )
+          ) : (
+            <section className="empty-state">
+              <p className="eyebrow">Project opened</p>
+              <h2>Select a page</h2>
+              <p>Choose a page from the sidebar to open its manuscript.</p>
+            </section>
+          )}
+        </main>
 
-          <DetailsPanel
-            selectedPage={selectedPage}
-            pageLinks={pageLinks}
-            pageBacklinks={pageBacklinks}
-          />
+          {selectedProject && (
+            <DetailsPanel
+              selectedPage={selectedPage}
+              pageLinks={pageLinks}
+              pageBacklinks={pageBacklinks}
+            />
+          )}
         </div>
       )}
 
@@ -816,6 +850,21 @@ function App() {
             setIsCreatePageModalOpen(false);
             setNewPageTitle("");
             setNewPageParentId("");
+          }}
+        />
+      )}
+
+      {isCreateProjectModalOpen && (
+        <CreateProjectModal
+          newProjectTitle={newProjectTitle}
+          newProjectDescription={newProjectDescription}
+          setNewProjectTitle={setNewProjectTitle}
+          setNewProjectDescription={setNewProjectDescription}
+          onCreateProject={handleCreateProject}
+          onCancel={() => {
+            setIsCreateProjectModalOpen(false);
+            setNewProjectTitle("");
+            setNewProjectDescription("");  
           }}
         />
       )}
