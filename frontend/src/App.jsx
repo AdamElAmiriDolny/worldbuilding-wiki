@@ -675,7 +675,7 @@ function App() {
         {user ? (
           <div className="user-area">
             <span>{user.username}</span>
-            <button type="button" onClick={handleLogout}>
+            <button type="button" className="logout-button" onClick={handleLogout}>
               Log out
             </button>
           </div>

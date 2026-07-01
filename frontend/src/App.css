@@ -1195,3 +1195,176 @@ select:focus {
   padding-bottom: 0;
   border-bottom: none;
 }
+
+/* Project list
+   Project rows use the same quiet navigation style as the page tree.
+   Delete is available, but it should not visually dominate the row. */
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.project-list-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  margin-bottom: 4px;
+  padding-right: 28px;
+}
+
+.project-list-button {
+  width: auto;
+  min-width: 0;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-soft);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-list-button:hover {
+  border-color: rgba(214, 169, 96, 0.18);
+  background: rgba(214, 169, 96, 0.07);
+  color: var(--parchment-light);
+}
+
+.project-list-delete-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 1px solid rgba(164, 58, 45, 0.35);
+  border-radius: 5px;
+  background: rgba(127, 45, 34, 0.2);
+  color: rgba(255, 205, 190, 0.78);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: center;
+  opacity: 0;
+}
+
+.project-list-item:hover .project-list-delete-button {
+  opacity: 1;
+}
+
+.project-list-delete-button:hover {
+  border-color: rgba(220, 91, 72, 0.9);
+  background: rgba(127, 45, 34, 0.85);
+  color: #ffe1d8;
+}
+
+/* Top-bar logout action
+   This is a secondary header control, so it should be quieter than
+   the main archive buttons in the sidebar and modals. */
+
+.logout-button {
+  width: auto;
+  min-height: auto;
+  padding: 6px 10px;
+  border-color: rgba(214, 169, 96, 0.28);
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.logout-button:hover {
+  border-color: rgba(240, 201, 135, 0.55);
+  background: rgba(214, 169, 96, 0.1);
+  color: var(--brass-bright);
+}
+
+/* Project list cards
+   When the user has not entered a project yet, each project is
+   shown as a small archive card instead of a plain button. This
+   gives the dashboard state more substance without adding fake UI. */
+
+.sidebar-empty-message {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+
+.project-list-item {
+  position: relative;
+  margin-bottom: 10px;
+  padding-right: 28px;
+}
+
+.project-list-card {
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 13px;
+  border: 1px solid rgba(214, 169, 96, 0.24);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.08));
+  color: var(--parchment-light);
+  text-align: left;
+}
+
+.project-list-card:hover {
+  border-color: rgba(240, 201, 135, 0.48);
+  background:
+    linear-gradient(180deg, rgba(214, 169, 96, 0.12), rgba(0, 0, 0, 0.08));
+}
+
+.project-list-card-title {
+  display: block;
+  color: var(--parchment-light);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.project-list-card-description {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.project-list-delete-button {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(164, 58, 45, 0.35);
+  border-radius: 5px;
+  background: rgba(127, 45, 34, 0.2);
+  color: rgba(255, 205, 190, 0.78);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: center;
+  opacity: 0;
+}
+
+.project-list-item:hover .project-list-delete-button {
+  opacity: 1;
+}
+
+.project-list-delete-button:hover {
+  border-color: rgba(220, 91, 72, 0.9);
+  background: rgba(127, 45, 34, 0.85);
+  color: #ffe1d8;
+}
