@@ -10,7 +10,7 @@ function CreatePageModal({
   return (
     <div className="modal-backdrop">
       <section className="confirm-modal create-page-modal">
-        <div className="confirm-modal-ornament">✦</div>
+        <div className="confirm-modal-ornament" />
 
         <p className="eyebrow">New page</p>
         <h2>Create a page</h2>

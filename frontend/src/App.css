@@ -42,8 +42,9 @@
   --border-soft: rgba(214, 169, 96, 0.26);
   --border-strong: rgba(214, 169, 96, 0.48);
 
-  --font-heading: Georgia, "Times New Roman", serif;
-  --font-ui: Arial, sans-serif;
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-heading: "Alegreya", Georgia, "Times New Roman", serif;
+  --font-ui: "Alegreya", Georgia, "Times New Roman", serif;
 }
 
 
@@ -1368,3 +1369,236 @@ select:focus {
   background: rgba(127, 45, 34, 0.85);
   color: #ffe1d8;
 }
+
+/* =========================================================
+   Modal refinement
+
+   Modals are used for focused decisions: creating a project,
+   creating a page, or confirming deletion. They use the same
+   archive language as the rest of the app, but with stronger
+   contrast because they temporarily interrupt the workflow.
+   ========================================================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  padding: 24px;
+  background:
+    radial-gradient(circle at center, rgba(214, 169, 96, 0.12), transparent 38%),
+    rgba(0, 0, 0, 0.76);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding: 30px;
+  border: 1px solid rgba(214, 169, 96, 0.55);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(45, 30, 21, 0.98), rgba(18, 13, 9, 0.98));
+  color: var(--parchment-light);
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.72),
+    inset 0 0 30px rgba(214, 169, 96, 0.045);
+}
+
+.confirm-modal::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 1px solid rgba(214, 169, 96, 0.18);
+  border-radius: 13px;
+  pointer-events: none;
+}
+
+.confirm-modal-ornament {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(214, 169, 96, 0.46);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brass);
+  background:
+    radial-gradient(circle, rgba(214, 169, 96, 0.12), rgba(0, 0, 0, 0.12));
+  font-size: 0.9rem;
+}
+
+.confirm-modal h2 {
+  margin: 0 0 12px;
+  color: var(--brass-bright);
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.confirm-modal-message {
+  margin: 0 0 22px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.confirm-modal .eyebrow {
+  color: var(--brass);
+}
+
+/* Creation modals need comfortable form spacing. */
+.create-project-modal,
+.create-page-modal {
+  max-width: 480px;
+}
+
+.modal-form {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.modal-form input,
+.modal-form textarea,
+.modal-form select {
+  background: rgba(10, 7, 5, 0.58);
+}
+
+.modal-form textarea {
+  min-height: 110px;
+}
+
+/* Keep modal actions compact and balanced. */
+.confirm-modal .form-actions {
+  margin-top: 18px;
+}
+
+.confirm-modal .form-actions button {
+  min-height: 38px;
+}
+
+/* =========================================================
+   Ornate modal frame concept
+
+   The modal is treated like an archive notice: dark vellum,
+   brass edging, small corner marks, and a centered crest.
+   This keeps the fantasy identity without relying on image assets.
+   ========================================================= */
+
+.confirm-modal {
+  position: relative;
+  max-width: 480px;
+  padding: 42px 38px 32px;
+  border: 1px solid rgba(214, 169, 96, 0.42);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(214, 169, 96, 0.55) 0 1px, transparent 1px) top left / 48px 48px no-repeat,
+    linear-gradient(225deg, rgba(214, 169, 96, 0.55) 0 1px, transparent 1px) top right / 48px 48px no-repeat,
+    linear-gradient(45deg, rgba(214, 169, 96, 0.55) 0 1px, transparent 1px) bottom left / 48px 48px no-repeat,
+    linear-gradient(315deg, rgba(214, 169, 96, 0.55) 0 1px, transparent 1px) bottom right / 48px 48px no-repeat,
+    radial-gradient(circle at top, rgba(214, 169, 96, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(43, 29, 20, 0.99), rgba(14, 10, 7, 0.99));
+  color: var(--parchment-light);
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.78),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.75),
+    inset 0 0 34px rgba(214, 169, 96, 0.045);
+}
+
+.confirm-modal::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(214, 169, 96, 0.18);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.confirm-modal::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 86px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(214, 169, 96, 0.2),
+      rgba(214, 169, 96, 0.58),
+      rgba(214, 169, 96, 0.2),
+      transparent
+    );
+  pointer-events: none;
+}
+
+.confirm-modal-ornament {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  transform: translateX(-50%) rotate(45deg);
+  border: 1px solid rgba(214, 169, 96, 0.58);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle, rgba(214, 169, 96, 0.2), rgba(18, 13, 9, 0.98));
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.55),
+    inset 0 0 14px rgba(214, 169, 96, 0.08);
+  color: transparent;
+}
+
+.confirm-modal-ornament::before {
+  content: "✦";
+  position: absolute;
+  inset: 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brass-bright);
+  font-size: 1rem;
+}
+
+.confirm-modal .eyebrow {
+  text-align: center;
+  color: var(--brass);
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+}
+
+.confirm-modal h2 {
+  margin: 0 0 22px;
+  color: var(--parchment-light);
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.confirm-modal-message {
+  max-width: 34ch;
+  margin: 0 auto 28px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.confirm-modal .form-actions {
+  margin-top: 28px;
+  justify-content: center;
+}
+
+.confirm-modal .form-actions button {
+  flex: 0 1 170px;
+}
+

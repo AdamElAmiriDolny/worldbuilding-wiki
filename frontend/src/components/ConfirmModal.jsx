@@ -8,10 +8,11 @@ function ConfirmModal({
   return (
     <div className="modal-backdrop">
       <section className="confirm-modal">
-        <div className="confirm-model-ornament">✦</div>
+        <div className="confirm-modal-ornament" />
         
         <p className="eyebrow">Confirmation required</p>
         <h2>{title}</h2>
+
         <p className="confirm-modal-message">{message}</p>
 
         <div className="form-actions">

@@ -9,7 +9,7 @@ function CreateProjectModal({
   return (
     <div className="modal-backdrop">
       <section className="confirm-modal create-project-modal">
-        <div className="confirm-modal-ornament">✦</div>
+        <div className="confirm-modal-ornament" />
 
         <p className="eyebrow">New project</p>
         <h2>Create a project</h2>
